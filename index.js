@@ -22,7 +22,6 @@ const main = async () => {
 
   app.use(express.json())
   app.use(cors({ origin: "*" }))
-  app.use(express.static("public"))
 
   app.post("/api/timetable", async (request, response) => {
     if (!((request.body.gradeId || request.body.gradeId === 0) &&
@@ -53,9 +52,13 @@ const main = async () => {
     response.status(200).json(getGrades())
   })
 
+  app.use("/admin/*", express.static(path.resolve(__dirname, "../admin/build")))
+
   app.get("/admin/*", (request, response) => {
     response.sendFile(path.resolve(__dirname, "../admin/build", "index.html"))
   })
+
+  app.use("*", express.static(path.resolve(__dirname, "../client/build")))
 
   app.get("*", (request, response) => {
     response.sendFile(path.resolve(__dirname, "../client/build", "index.html"))
