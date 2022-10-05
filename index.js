@@ -4,6 +4,7 @@ import { createClient } from "redis"
 import dotenv from "dotenv"
 import { getGrades } from "./getGrades.js"
 import cors from "cors"
+import path from "path"
 
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url))
 dotenv.config({
@@ -49,6 +50,14 @@ const main = async () => {
 
   app.get("/api/grades", (request, response) => {
     response.status(200).json(getGrades())
+  })
+
+  app.get("/admin/*", (request, response) => {
+    response.sendFile(path.resolve("../admin/build", "index.html"))
+  })
+
+  app.get("*", (request, response) => {
+    response.sendFile(path.resolve("../client/build", "index.html"))
   })
 
   app.listen(process.env.PORT, () => console.log(`I'm listening PORT ${process.env.PORT}`))
