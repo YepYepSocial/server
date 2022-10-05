@@ -22,6 +22,7 @@ const main = async () => {
 
   app.use(express.json())
   app.use(cors({ origin: "*" }))
+  app.use(express.static("public"))
 
   app.post("/api/timetable", async (request, response) => {
     if (!((request.body.gradeId || request.body.gradeId === 0) &&
