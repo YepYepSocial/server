@@ -53,11 +53,11 @@ const main = async () => {
   })
 
   app.get("/admin/*", (request, response) => {
-    response.sendFile(path.resolve("../admin/build", "index.html"))
+    response.sendFile(path.resolve(__dirname, "../admin/build", "index.html"))
   })
 
   app.get("*", (request, response) => {
-    response.sendFile(path.resolve("../client/build", "index.html"))
+    response.sendFile(path.resolve(__dirname, "../client/build", "index.html"))
   })
 
   app.listen(process.env.PORT, () => console.log(`I'm listening PORT ${process.env.PORT}`))
