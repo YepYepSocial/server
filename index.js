@@ -2,6 +2,8 @@ import express from "express"
 import * as url from "url"
 import { createClient } from "redis"
 import dotenv from "dotenv"
+import { getGrades } from "./getGrades.js"
+import cors from "cors"
 
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url))
 dotenv.config({
@@ -18,29 +20,35 @@ const main = async () => {
   await client.connect()
 
   app.use(express.json())
+  app.use(cors({ origin: "*" }))
 
   app.post("/api/timetable", async (request, response) => {
-    if (!(request.body.className && request.body.weekday && request.body.timetable)) {
+    if (!((request.body.gradeId || request.body.gradeId === 0) &&
+      (request.body.weekday || request.body.weekday === 0) && request.body.timetable)) {
       response.status(400).json("bad request")
       return
     }
 
-    const { className, weekday, timetable } = request.body
-    await client.set(className + weekday, JSON.stringify(timetable))
+    const { gradeId, weekday, timetable } = request.body
+    await client.set(gradeId + weekday, JSON.stringify(timetable))
 
     response.status(200).json(timetable)
   })
 
   app.get("/api/timetable", async (request, response) => {
-    if (!(request.body.className && request.body.weekday)) {
+    if (!(request.query.gradeId && request.query.weekday)) {
       response.status(400).json("bad request")
       return
     }
 
-    const { className, weekday } = request.body
-    const timetable = client.get(className + weekday)
+    const { gradeId, weekday } = request.query
+    const timetable = JSON.parse(await client.get(gradeId + weekday))
 
     response.status(200).json(timetable)
+  })
+
+  app.get("/api/grades", (request, response) => {
+    response.status(200).json(getGrades())
   })
 
   app.listen(process.env.PORT, () => console.log(`I'm listening PORT ${process.env.PORT}`))
